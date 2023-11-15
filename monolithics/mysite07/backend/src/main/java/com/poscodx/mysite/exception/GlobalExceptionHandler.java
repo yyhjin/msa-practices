@@ -1,41 +1,37 @@
-package com.poscodx.emaillist.exception;
+package com.poscodx.mysite.exception;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Map;
 
+import com.poscodx.mysite.dto.JsonResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
-@Slf4j
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
-//	@@Slf4j 사용하면 해당 코드 필요 없고 logger대신 log로 사용하면 됨
-//	private static final Log logger = LogFactory.getLog(GlobalExceptionHandler.class);
-	
+
 	@ExceptionHandler(NoHandlerFoundException.class)
-	public String NoHandlerException(Exception e) {
+	public String handlerNoHandlerFoundException(Exception e) {
 		return "index";
 	}
-	
-	@ResponseBody
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<?> handlerException(Exception e) {
 
-		// 로깅(Logging)
+	@ExceptionHandler(Exception.class)
+	@ResponseBody
+	public ResponseEntity<JsonResult> handlerException(Exception e) {
+		// 1. 로깅(logging)
 		StringWriter errors = new StringWriter();
 		e.printStackTrace(new PrintWriter(errors));
 		log.error(errors.toString());
 		
-		// 응답
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.body(Map.of("error", errors.toString()));
+		// 2. JSON 응답
+		return ResponseEntity.status(HttpStatus.OK).body(JsonResult.fail(errors.toString()));
 	}
 }
+
